@@ -6,21 +6,28 @@ import time
 SourceSavePath = '.\\ReceiveFile\\'
 
 bot = Bot()
-tuling = Tuling(api_key='')
+
+# 调用机器人API，发送消息并获得机器人的回复
+def auto_reply(text):
+    apikey="xxx"
+    headers = {'Authorization': apikey,}
+    json_data = {
+        'model': 'gpt-3.5-turbo',
+        'messages': [{'role': 'user', 'content': text}]
+    }
+    r = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
+    rjson=r.json()
+    retext = "chatGPT:" + rjson["choices"][0]["text"]
+    print(retext)
+    return retext
 
 @bot.register()
 def auto_reply_all(msg):
-
     print(msg)
     if isinstance(msg.chat, Group) and not msg.is_at:
       return
     elif msg.type == 'Text':
-      time.sleep(2)
-      tuling.do_reply(msg)
-    elif msg.type == 'Picture':
-      savePath = SourceSavePath+msg.file_name
-      msg.get_file(savePath)
-      msg.reply_image(savePath)
+      return auto_reply(msgs)
     else:
       msg.forward(msg.sender)
 bot.join()
